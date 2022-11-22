@@ -1,0 +1,4 @@
+---
+pod_nw_cidr: 172.10.0.0/16
+svc_cidr: 10.96.0.0/12
+k8s_apiserver_port: 6443

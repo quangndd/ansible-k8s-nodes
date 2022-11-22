@@ -1,0 +1,32 @@
+---
+- name: Add bridge and overlayFS kernel modules
+  ansible.builtin.copy:
+    src: crio_kernel_modules.conf
+    dest: /etc/modules-load.d
+    force: yes
+
+- name: Enable bridge and overlay modules
+  ansible.builtin.shell: |
+    modprobe br_netfilter
+    modprobe overlay
+
+# - name: Enable bridge module
+#   community.general.modprobe:
+#     name: br_netfilter
+#     state: present
+
+# - name: Enable overlayFS
+#   community.general.modprobe:
+#     name: overlay
+#     state: present
+
+- name: Set kernel params for and iptables for bridging and ip forward
+  ansible.builtin.copy:
+    src: crio_kernel_params.conf
+    dest: /etc/sysctl.d
+
+- name: Reload sysctl
+  ansible.builtin.shell: |
+    sysctl --system
+  args:
+    executable: /bin/bash

@@ -1,0 +1,40 @@
+---
+# tasks file for k8s_initializer
+- name: Disable swap
+  ansible.builtin.shell: |
+    swapoff -a
+  args:
+    executable: /bin/bash
+
+- name: Reset kubernetes cluster
+  ansible.builtin.shell: |
+    for i in {1..4}; do
+      kubeadm reset -f
+    done
+  args:
+    executable: /bin/bash
+
+- name: Add hostname to all other nodes
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '.*{{ item }}$'
+    line: "{{ hostvars[item]['ansible_env'].SSH_CONNECTION.split(' ')[2] }} {{ hostvars[item]['ansible_hostname'] }}"
+    state: present
+    backup: yes
+  with_items: "{{ groups.k8s_nodes }}" 
+
+- include: init_masters.yml
+  when: inventory_hostname in groups["k8s_masters"]
+
+- include: init_workers.yml
+  when: inventory_hostname in groups["k8s_workers"]
+
+- name: Label worker nodes
+  ansible.builtin.shell: |
+    kubectl label node {{ hostvars[item]['ansible_hostname'] }} node-role.kubernetes.io/worker=worker
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  args:
+    executable: /bin/bash
+  with_items: "{{ groups.k8s_workers }}"
+  when: inventory_hostname in groups["k8s_masters"]

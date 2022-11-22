@@ -1,0 +1,12 @@
+---
+- name: Upload k8s join-command file
+  ansible.builtin.copy:
+    src: /tmp/join-cmd.txt
+    dest: /tmp/join-cmd.txt
+    force: true
+
+- name: Join with control plane using provided token
+  ansible.builtin.shell: |
+    eval "$(cat /tmp/join-cmd.txt | tr -d '\n') --ignore-preflight-errors=NumCPU,Mem" 
+  args:
+    executable: /bin/bash

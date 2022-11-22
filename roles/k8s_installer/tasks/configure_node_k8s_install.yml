@@ -1,0 +1,150 @@
+---
+- name: Set SELinux permissive mode
+  ansible.posix.selinux:
+    policy: targeted
+    state: permissive
+
+- name: Disable swap
+  ansible.builtin.shell: |
+    swapoff -a
+  args:
+    executable: /bin/bash
+  
+- name: Disable swap after reboot
+  ansible.builtin.shell: |
+    sed -i '/swap/d' /etc/fstab
+  args:
+    executable: /bin/bash
+
+- name: Open firewall port - Kubernetes etcd server client API (on master nodes in multi-master deployments)
+  ansible.posix.firewalld:
+    port: 2379-2380/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - Kubernetes API server (master nodes)
+  ansible.posix.firewalld:
+    port: 443/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - Kubernetes API server (master nodes)
+  ansible.posix.firewalld:
+    port: 6443/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - Platform Agent (master and worker nodes)
+  ansible.posix.firewalld:
+    port: 8090/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - Platform API Server (operator node)
+  ansible.posix.firewalld:
+    port: 8091/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - Flannel overlay network, VxLAN backend (master and worker nodes)
+  ansible.posix.firewalld:
+    port: 8472/udp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - Kubernetes kubelet API server (master and worker nodes)
+  ansible.posix.firewalld:
+    port: 10250/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - Kubernetes kube-scheduler (on master nodes in multi-master deployments)
+  ansible.posix.firewalld:
+    port: 10251/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - Kubernetes kube-controller-manager (on master nodes in multi-master deployments)
+  ansible.posix.firewalld:
+    port: 10252/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - Kubernetes kubelet API server for read-only access with no authentication (master and worker nodes)
+  ansible.posix.firewalld:
+    port: 10255/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - Kubernetes Calico network plugin
+  ansible.posix.firewalld:
+    port: 179/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - Kubernetes Calico network plugin VLANX enabled
+  ansible.posix.firewalld:
+    port: 4789/udp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - Kubernetes Calico network plugin Typha enabled
+  ansible.posix.firewalld:
+    port: 5473/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - Kubernetes Calico network plugin Wiregurad enabled
+  ansible.posix.firewalld:
+    port: 51820-51821/udp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - Kubernetes Flannel network plugin
+  ansible.posix.firewalld:
+    port: 8285/udp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - Kubernetes Flannel network plugin
+  ansible.posix.firewalld:
+    port: 8472/udp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - NodePorts
+  ansible.posix.firewalld:
+    port: 30000-32767/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Open firewall port - NodePorts
+  ansible.posix.firewalld:
+    port: 30000-32767/udp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- ansible.posix.firewalld:
+    masquerade: yes
+    state: enabled
+    permanent: yes
+    immediate: yes
+    zone: public

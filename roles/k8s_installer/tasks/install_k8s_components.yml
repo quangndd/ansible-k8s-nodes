@@ -1,0 +1,32 @@
+---
+- name: Create kubernetes.repo
+  ansible.builtin.copy:
+    src: kubernetes.repo
+    dest: /etc/yum.repos.d
+    force: yes
+
+- name: Install kubeadm
+  ansible.builtin.yum:
+    name: kubeadm
+    state: latest
+    update_cache: yes
+
+- name: Install kubelet
+  ansible.builtin.yum:
+    name: kubelet
+    state: latest
+    update_cache: yes
+
+- name: Enable and start kubelet
+  ansible.builtin.systemd:
+    name: kubelet
+    daemon-reload: yes
+    enabled: yes
+    state: started
+
+- name: Install kubectl
+  ansible.builtin.yum:
+    name: kubectl
+    state: latest
+    update_cache: yes
+  when: inventory_hostname in groups['k8s_masters']

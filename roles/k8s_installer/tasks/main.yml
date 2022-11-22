@@ -1,0 +1,24 @@
+---
+# tasks file for k8s_installer
+- include_tasks: configure_node_container_engine_install.yml
+- include_tasks: install_container_engine.yml
+- include_tasks: configure_node_k8s_install.yml
+- include_tasks: install_k8s_components.yml
+
+- name: Reboot after installation
+  ansible.builtin.reboot:
+    reboot_timeout: 300
+    test_command: hostname
+
+# - name: iptable flush
+#   ansible.builtin.shell: |
+#     iptables --flush;
+#     iptables -tnat --flush
+#   args:
+#     executable: /bin/bash
+
+# - name: restart CRIO
+#   ansible.builtin.systemd:
+#     name: crio
+#     daemon_reload: yes
+#     state: restarted
