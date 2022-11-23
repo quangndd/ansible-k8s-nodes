@@ -1,9 +1,0 @@
----
-k8s_nodes:
-  children:
-    k8s_masters:
-      hosts:
-        test_vm_0:
-    k8s_workers:
-      hosts:
-        test_vm_1:

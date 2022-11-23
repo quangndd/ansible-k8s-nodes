@@ -10,3 +10,7 @@ k8s_nodes:
         k8s_worker_1:
         k8s_worker_2:
         k8s_worker_3:
+
+nfs_server:
+  hosts:
+    localhost:

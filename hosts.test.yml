@@ -1,0 +1,8 @@
+---
+nfs_server:
+  hosts:
+    localhost:
+
+nfs_client:
+  hosts:
+    test_vm_1:

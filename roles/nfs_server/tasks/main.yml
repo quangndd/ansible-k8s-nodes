@@ -1,0 +1,62 @@
+---
+# tasks file for nfs_server
+- name: Install nfs-utils
+  ansible.builtin.yum:
+    name: nfs-utils
+    state: latest
+    update_cache: yes
+
+- name: Enable and start nfs related services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    daemon-reload: yes
+    enabled: yes
+    state: started
+  with_items:
+    - rpcbind
+    - nfs-server
+    - nfs-lock
+    - nfs-idmap
+
+- name: Create directory for nfs sharing
+  ansible.builtin.file:
+    path: /data
+    state: directory
+    owner: nfsnobody
+    group: nfsnobody
+    mode: '1777'
+    recurse: yes
+
+- name: Create nfs for jenkins data
+  ansible.builtin.file:
+    path: /data/jenkins
+    state: directory
+    owner: nfsnobody
+    group: nfsnobody
+    mode: '1777'
+    recurse: yes
+
+- name: Configure NFS shared network hosts
+  ansible.builtin.shell: |
+    sed -i "/\/data\/jenkins/d" /etc/exports
+    echo "/data/jenkins    *(rw,sync,no_root_squash)" >> /etc/exports
+  args:
+    executable: /bin/bash
+
+- name: Open firewall for services
+  ansible.posix.firewalld:
+    zone: public
+    service: "{{ item }}"
+    permanent: yes
+    immediate: yes
+    state: enabled
+  with_items:
+    - nfs
+    - mountd
+    - rpc-bind
+
+- name: Restart nfs-server
+  ansible.builtin.systemd:
+    name: nfs-server
+    daemon_reload: yes
+    state: restarted

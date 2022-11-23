@@ -3,6 +3,6 @@
   roles:
     - nfs_server
 
-- hosts: nfs_client
+- hosts: k8s_nodes
   roles:
     - nfs_client

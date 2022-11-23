@@ -1,0 +1,29 @@
+---
+# tasks file for nfs_client
+
+- name: Install nfs-utils
+  ansible.builtin.yum:
+    name: nfs-utils
+    state: latest
+    update_cache: yes
+
+- name: Create nfs for jenkins data
+  ansible.builtin.file:
+    path: /data/jenkins
+    state: directory
+    recurse: yes
+
+- name: Set NFS server IP if NFS setup locally
+  set_fact: nfs_server_ip="{{ hostvars['localhost']['host_ip_addr'] }}"
+  when: groups.nfs_server[0] == 'localhost'
+- name: Set NFS server IP if NFS setup remotely
+  set_fact: nfs_server_ip={{ hostvars[groups.nfs_server[0]]['ansible_env'].SSH_CONNECTION.split(' ')[2] }}
+  when: groups.nfs_server[0] != 'localhost'
+
+- name: Mount NFS volume
+  ansible.posix.mount:
+    src: "{{ nfs_server_ip }}:/data/jenkins"
+    path: /data/jenkins
+    opts: rw,sync,hard
+    state: mounted
+    fstype: nfs
