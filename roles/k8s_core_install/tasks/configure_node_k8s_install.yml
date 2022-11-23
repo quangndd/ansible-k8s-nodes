@@ -1,0 +1,70 @@
+---
+- name: Set SELinux permissive mode
+  ansible.posix.selinux:
+    policy: targeted
+    state: permissive
+
+- name: Disable swap
+  ansible.builtin.shell: |
+    swapoff -a
+  args:
+    executable: /bin/bash
+
+- name: Disable swap after reboot
+  ansible.builtin.shell: |
+    sed -i '/swap/d' /etc/fstab
+  args:
+    executable: /bin/bash
+
+# Open firewall ports:
+  # 443/tcp            Kubernetes API server (master nodes)
+  # 2379-2380/tcp      Kubernetes etcd server client API (on master nodes in multi-master deployments)
+  # 6443/tcp           Kubernetes API server (master nodes)
+  # 8090/tcp           Platform Agent (master and worker nodes)
+  # 8091/tcp           Platform API Server (operator node)
+  # 8472/udp           Flannel overlay network, VxLAN backend (master and worker nodes)
+  # 10250/tcp          Kubernetes kubelet API server (master and worker nodes)
+  # 10251/tcp          Kubernetes kube-scheduler (on master nodes in multi-master deployments)
+  # 10252/tcp          Kubernetes kube-controller-manager (on master nodes in multi-master deployments)
+  # 10255/tcp          Kubernetes kubelet API server for read-only access with no authentication (master and worker nodes)
+  # 179/tcp            Kubernetes Calico network plugin
+  # 4789/udp           Kubernetes Calico network plugin VLANX enabled
+  # 5473/tcp           Kubernetes Calico network plugin Typha enabled
+  # 51820-51821/udp    Kubernetes Calico network plugin Wiregurad enabled
+  # 8285/udp           Kubernetes Flannel network plugin
+  # 8472/udp           Kubernetes Flannel network plugin
+  # 30000-32767/tcp    NodePorts
+  # 30000-32767/udp    NodePorts
+
+- name: Open firewall port - Kubernetes etcd server client API (on master nodes in multi-master deployments)
+  ansible.posix.firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    immediate: yes
+    state: enabled
+  with_items:
+    - 443/tcp
+    - 2379-2380/tcp
+    - 6443/tcp
+    - 8090/tcp
+    - 8091/tcp
+    - 8472/udp
+    - 10250/tcp
+    - 10251/tcp
+    - 10252/tcp
+    - 10255/tcp
+    - 179/tcp
+    - 4789/udp
+    - 5473/tcp
+    - 51820-51821/udp
+    - 8285/udp
+    - 8472/udp
+    - 30000-32767/tcp
+    - 30000-32767/udp
+
+- ansible.posix.firewalld:
+    masquerade: yes
+    state: enabled
+    permanent: yes
+    immediate: yes
+    zone: public

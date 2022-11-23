@@ -1,5 +1,5 @@
 ---
-# tasks file for k8s_installer
+# tasks file for k8s_core_install
 - include_tasks: configure_node_container_engine_install.yml
 - include_tasks: install_container_engine.yml
 - include_tasks: configure_node_k8s_install.yml

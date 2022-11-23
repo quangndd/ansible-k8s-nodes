@@ -1,5 +1,5 @@
 ---
 - hosts: k8s_nodes
   roles:
-    # - k8s_installer
-    - k8s_initializer
+    # - k8s_core_install
+    - k8s_agents_init

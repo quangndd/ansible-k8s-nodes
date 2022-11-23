@@ -2,4 +2,4 @@
 - hosts: localhost
   remote_user: root
   roles:
-    - k8s_initializer
+    - k8s_core_install

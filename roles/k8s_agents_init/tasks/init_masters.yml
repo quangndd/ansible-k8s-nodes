@@ -1,0 +1,67 @@
+---
+- name: Pull control-plane required images
+  ansible.builtin.shell: |
+    kubeadm config images pull
+  args:
+    executable: /bin/bash
+
+- name: Initialize kubernetes control-plane
+  ansible.builtin.shell: |
+    kubeadm init \
+      --control-plane-endpoint={{ ansible_hostname }}:{{ k8s_apiserver_port }} \
+      --pod-network-cidr={{ pod_nw_cidr }} \
+      --service-cidr={{ svc_cidr }} \
+      --cri-socket=unix:///var/run/crio/crio.sock \
+      --ignore-preflight-errors=NumCPU,Mem
+  args:
+    executable: /bin/bash
+  register: output
+- debug:
+    msg: "{{ output.stdout_lines }}"
+
+- name: Save join-command
+  ansible.builtin.shell: |
+    kubeadm token create --print-join-command | sed "s/localhost/$(hostname)/" > /tmp/join-cmd.txt
+  args:
+    executable: /bin/bash
+
+- name: Fetch join-command file back to ansible server
+  ansible.builtin.fetch:
+    src: /tmp/join-cmd.txt
+    dest: /tmp/
+    flat: yes
+
+- name: Pause for 3 minutes for master node stablizing
+  ansible.builtin.pause:
+    minutes: 3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# - name: Create directory for calicoctl
+#   ansible.builtin.file:
+#     path: /opt/calico
+#     state: directory
+#     recurse: yes
+# - name: Download Calico CLI tool
+#   ansible.builtin.get_url:
+#     url: https://github.com/projectcalico/calico/releases/download/v3.24.1/calicoctl-linux-amd64 -o calicoctl
+#     dest: /opt/calico/calicoctl
+# - name: Install calicoctl
+#   ansible.builtin.shell: |
+#     install -o root -g root -m 0775 /opt/calico/calicoctl usr/bin/calicoctl
+#   args:
+#     executable: /bin/bash
+
+
