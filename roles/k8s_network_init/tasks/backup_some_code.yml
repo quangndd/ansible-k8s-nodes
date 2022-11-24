@@ -1,0 +1,54 @@
+---
+# tasks file for k8s_network_init
+
+# - name: Create directory for calico manifest
+#   ansible.builtin.file:
+#     path: /etc/calico-cni
+#     state: directory
+#     recurse: yes
+# - name: Download Calico CNI manifest file
+#   ansible.builtin.get_url:
+#     url: https://docs.projectcalico.org/manifests/calico.yaml
+#     dest: /etc/calico-cni/calico.yaml
+# - name: Create backup manifest file
+#   ansible.builtin.copy:
+#     remote_src: yes
+#     src: /etc/calico-cni/calico.yaml
+#     dest: /etc/calico-cni/calico.backup.yaml
+# - name: Update Calico manifest
+#   ansible.builtin.shell: |
+#     cidr=$(grep "^[[:space:]]*\#" /etc/calico-cni/calico.yaml | grep -oP "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\/[0-9]*")
+#     sed -i "s#${cidr}#{{ pod_nw_cidr }}#" /etc/calico-cni/calico.yaml
+#   args:
+#     executable: /bin/bash
+# - name: Install Calico on k8s cluster
+#   ansible.builtin.shell: |
+#     kubectl apply -f /etc/calico-cni/calico.yaml
+#   environment:
+#     KUBECONFIG: /etc/kubernetes/admin.conf
+#   args:
+#     executable: /bin/bash
+
+# - name: Create directory for canal manifest
+#   ansible.builtin.file:
+#     path: /etc/canal-cni
+#     state: directory
+#     recurse: yes
+# - name: Download Canal CNI manifest file
+#   ansible.builtin.get_url:
+#     url: https://raw.githubusercontent.com/projectcalico/calico/v3.24.5/manifests/canal.yaml
+#     dest: /etc/canal-cni/canal.yaml
+# - name: Update Canal manifest
+#   ansible.builtin.shell: |
+#     cidr=$(grep "\"Network\"\:" /etc/canal-cni/canal.yaml | grep -oP "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\/[0-9]*")
+#     sed -i "s#${cidr}#{{ pod_nw_cidr }}#" /etc/canal-cni/canal.yaml
+#   args:
+#     executable: /bin/bash
+# - name: Install Canal on k8s cluster
+#   ansible.builtin.shell: |
+#     kubectl apply -f /etc/canal-cni/canal.yaml
+#   environment:
+#     KUBECONFIG: /etc/kubernetes/admin.conf
+#   args:
+#     executable: /bin/bash
+

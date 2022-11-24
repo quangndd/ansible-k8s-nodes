@@ -1,0 +1,55 @@
+---
+# tasks file for k8s_network_init
+- name: Install k8s network related services
+  block:
+    - name: Upload Calico manifest
+      ansible.builtin.copy:
+        src: calico.yaml
+        dest: /tmp
+        force: true
+
+    - name: Install Calico on k8s cluster
+      ansible.builtin.shell: |
+        kubectl apply -f /tmp/calico.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      args:
+        executable: /bin/bash
+
+    - name: Pause for 1 minutes for Calico
+      ansible.builtin.pause:
+        minutes: 1
+
+    # Install Load Balancer implementation for bare metal cluster
+    - name: create Metallb namespace variable
+      set_fact: metallb_ns='metallb-system'
+
+    - name: Install Metallb with Helm
+      ansible.builtin.shell: |
+        helm repo add metallb https://metallb.github.io/metallb
+        helm install metallb metallb/metallb --namespace {{ metallb_ns }} --create-namespace
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      args:
+        executable: /bin/bash
+    
+    - name: Pause for 1 minutes for Metallb
+      ansible.builtin.pause:
+        minutes: 1
+
+    - name: Upload Metallb pool config
+      ansible.builtin.copy:
+        src: metallb-config.yaml
+        dest: /tmp
+        force: true
+
+    - name: Apply Metallb ip pool config
+      ansible.builtin.shell: |
+        kubectl apply -f /tmp/metallb-config.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      args:
+        executable: /bin/bash
+  run_once: true
+  delegate_to: "{{ groups['k8s_masters'][0] }}"
+    
