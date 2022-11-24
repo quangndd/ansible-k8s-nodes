@@ -23,10 +23,3 @@
     daemon-reload: yes
     enabled: yes
     state: started
-
-- name: Install kubectl
-  ansible.builtin.yum:
-    name: kubectl
-    state: latest
-    update_cache: yes
-  when: inventory_hostname in groups['k8s_masters']

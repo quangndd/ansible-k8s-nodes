@@ -31,6 +31,22 @@
     dest: /tmp/
     flat: yes
 
+- name: Install kubectl
+  ansible.builtin.yum:
+    name: kubectl
+    state: latest
+    update_cache: yes
+
+- name: Download Helm installer
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+    dest: /tmp/get_helm.sh
+- name: Install Helm
+  ansible.builtin.shell: |
+    /bin/bash /tmp/get_helm.sh
+  args:
+    executable: /bin/bash
+
 - name: Pause for 3 minutes for master node stablizing
   ansible.builtin.pause:
     minutes: 3
