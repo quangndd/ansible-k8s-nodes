@@ -14,3 +14,11 @@ k8s_nodes:
 nfs_server:
   hosts:
     localhost:
+
+nfs_client:
+  hosts: 
+    k8s_master_0:
+    k8s_worker_0:
+    k8s_worker_1:
+    k8s_worker_2:
+    k8s_worker_3:

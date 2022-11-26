@@ -1,7 +1,7 @@
 ---
 nfs_server:
   hosts:
-    localhost:
+    test_vm_0:
 
 nfs_client:
   hosts:
